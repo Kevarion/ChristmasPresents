@@ -1,0 +1,6 @@
+name: ChristmasPresents
+version: '${project.version}'
+main: net.kevarion.christmaspresents.ChristmasPresents
+api-version: '1.21'
+authors: [Kevarion]
+description: A cool little christmas presents plugin
