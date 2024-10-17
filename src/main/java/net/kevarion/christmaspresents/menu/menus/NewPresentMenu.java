@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,15 +35,26 @@ public class NewPresentMenu extends Menu {
 
         Player player = playerMenuUtility.getOwner();
 
-        if (event.getSlot() == 40) {
+        if (playerMenuUtility.getPresentMessage() != null || playerMenuUtility.getRecipient() != null) {
+            if (event.getSlot() == 0) event.setCancelled(true);
+        }
+
+            if (event.getSlot() == 40) {
             event.setCancelled(true);
 
             ArrayList<ItemStack> items = new ArrayList<>();
             ItemStack present;
 
             try {
-                for (int i = 0; i < 27; i++) {
-                    if (event.getInventory().getItem(i) != null) items.add(event.getInventory().getItem(i));
+
+                if (playerMenuUtility.getPresentMessage() != null || playerMenuUtility.getRecipient() != null) {
+                    for (int i = 1; i < 27; i++) {
+                        if (event.getInventory().getItem(i) != null) items.add(event.getInventory().getItem(i));
+                    }
+                } else {
+                    for (int i = 0; i < 27; i++) {
+                        if (event.getInventory().getItem(i) != null) items.add(event.getInventory().getItem(i));
+                    }
                 }
 
                 present = PresentUtil.createPresent(items, playerMenuUtility.getOwner().getDisplayName(), playerMenuUtility.getRecipient(), playerMenuUtility.getPresentMessage());
@@ -67,10 +79,35 @@ public class NewPresentMenu extends Menu {
             inventory.setItem(i, FILLER_GLASS);
         }
 
-        ItemStack create = makeItem(Material.BELL, color("Create Present"),
-                color("Click this item and the Elves..."),
-                color("will package your present."));
+        ItemStack info = makeItem(Material.PAPER, color("&e&lInformation"),
+                "&7Put the items you want in the present above.");
 
+        ItemStack create = makeItem(Material.BELL, color("&a&lCreate &c&lPresent"),
+                color("&aClick this item and the Elves..."),
+                color("&awill package your present."));
+
+        if (playerMenuUtility.getPresentMessage() != null || playerMenuUtility.getRecipient() != null) {
+            ItemStack tag = new ItemStack(Material.NAME_TAG, 1);
+            ItemMeta tagMeta = tag.getItemMeta();
+
+            if (playerMenuUtility.getRecipient() != null) {
+                tagMeta.setDisplayName(color("&eTo: &f" + playerMenuUtility.getRecipient()));
+            }
+
+            ArrayList<String> messageLore = new ArrayList<>();
+            if (playerMenuUtility.getPresentMessage() != null) {
+                messageLore.add(color("&#08d30e" + playerMenuUtility.getPresentMessage()));
+            } else {
+                messageLore.add(color("&7And a happy new year!"));
+            }
+
+            tagMeta.setLore(messageLore);
+            tag.setItemMeta(tagMeta);
+
+            inventory.addItem(tag);
+        }
+
+        inventory.setItem(39, info);
         inventory.setItem(40, create);
 
     }
